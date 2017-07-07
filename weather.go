@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"reflect"
 	"strings"
 
 	"golang.org/x/oauth2"
@@ -86,20 +85,20 @@ type Device struct {
 // GustStrength : Speed of the last 5 min highest gust wind @ LastMesure (in km/h)
 // LastMesure : Contains timestamp of last data received
 type DashboardData struct {
-	Temperature      *float32 `json:"Temperature,omitempty"` // use pointer to detect ommitted field by json mapping
-	Humidity         *int32   `json:"Humidity,omitempty"`
-	CO2              *int32   `json:"CO2,omitempty"`
-	Noise            *int32   `json:"Noise,omitempty"`
-	Pressure         *float32 `json:"Pressure,omitempty"`
-	AbsolutePressure *float32 `json:"AbsolutePressure,omitempty"`
-	Rain             *float32 `json:"Rain,omitempty"`
-	Rain1Hour        *float32 `json:"sum_rain_1,omitempty"`
-	Rain1Day         *float32 `json:"sum_rain_24,omitempty"`
-	WindAngle        *int32   `json:"WindAngle,omitempty"`
-	WindStrength     *int32   `json:"WindStrength,omitempty"`
-	GustAngle        *int32   `json:"GustAngle,omitempty"`
-	GustStrength     *int32   `json:"GustStrengthfloat32,omitempty"`
-	LastMesure       *int64   `json:"time_utc"`
+	Temperature      float32 `json:"Temperature,omitempty"` // use pointer to detect ommitted field by json mapping
+	Humidity         int32   `json:"Humidity,omitempty"`
+	CO2              int32   `json:"CO2,omitempty"`
+	Noise            int32   `json:"Noise,omitempty"`
+	Pressure         float32 `json:"Pressure,omitempty"`
+	AbsolutePressure float32 `json:"AbsolutePressure,omitempty"`
+	Rain             float32 `json:"Rain,omitempty"`
+	Rain1Hour        float32 `json:"sum_rain_1,omitempty"`
+	Rain1Day         float32 `json:"sum_rain_24,omitempty"`
+	WindAngle        int32   `json:"WindAngle,omitempty"`
+	WindStrength     int32   `json:"WindStrength,omitempty"`
+	GustAngle        int32   `json:"GustAngle,omitempty"`
+	GustStrength     int32   `json:"GustStrengthfloat32,omitempty"`
+	LastMesure       int64   `json:"time_utc"`
 }
 
 // NewClient create a handle authentication to Netamo API
@@ -226,15 +225,34 @@ func (d *Device) Data() (int, map[string]interface{}) {
 
 	// return only populate field of DashboardData
 	m := make(map[string]interface{})
-	r := reflect.ValueOf(d.DashboardData)
 
-	for i := 0; i < r.NumField(); i++ {
-		//fmt.Println(r.Type().Field(i).Name)
-		if reflect.Indirect(r.Field(i)).IsValid() {
-			m[r.Type().Field(i).Name] = reflect.Indirect(r.Field(i))
-			//fmt.Println(reflect.Indirect(r.Field(i)))
+	m["temperature"] = float32(d.DashboardData.Temperature)
+	m["humidity"] = float32(d.DashboardData.Humidity)
+	m["co2"] = float32(d.DashboardData.CO2)
+	m["noise"] = float32(d.DashboardData.Noise)
+	m["pressure"] = float32(d.DashboardData.Pressure)
+	m["absolutepressure"] = float32(d.DashboardData.AbsolutePressure)
+	m["rain"] = float32(d.DashboardData.Rain)
+	m["rain1hour"] = float32(d.DashboardData.Rain1Hour)
+	m["rain1day"] = float32(d.DashboardData.Rain1Day)
+	m["windangle"] = float32(d.DashboardData.WindAngle)
+	m["windstrength"] = float32(d.DashboardData.WindStrength)
+	m["gustangle"] = float32(d.DashboardData.GustAngle)
+	m["guststrength"] = float32(d.DashboardData.GustStrength)
+
+	data := make(map[string]interface{})
+	for key, value := range m {
+		if value.(float32) > 0 {
+			data[key] = value
 		}
 	}
+	//for i := 0; i < r.NumField(); i++ {
+	//fmt.Println(r.Type().Field(i).Name)
+	//if reflect.Indirect(r.Field(i)).IsValid() {
+	//		m[r.Type().Field(i).Name] = reflect.Indirect(r.Field(i))
+	//fmt.Println(reflect.Indirect(r.Field(i)))
+	//		}
+	//	}
 
-	return int(*d.DashboardData.LastMesure), m
+	return int(d.DashboardData.LastMesure), data
 }
