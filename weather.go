@@ -242,9 +242,7 @@ func (d *Device) Data() (int, map[string]interface{}) {
 
 	data := make(map[string]interface{})
 	for key, value := range m {
-		if value.(float32) > 0 {
-			data[key] = value
-		}
+		data[key] = value
 	}
 	//for i := 0; i < r.NumField(); i++ {
 	//fmt.Println(r.Type().Field(i).Name)
